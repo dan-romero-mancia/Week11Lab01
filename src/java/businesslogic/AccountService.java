@@ -8,8 +8,11 @@ package businesslogic;
 import dataaccess.NotesDBException;
 import dataaccess.UserDB;
 import domainmodel.*;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.mail.MessagingException;
+import javax.naming.NamingException;
 
 /**
  *
@@ -17,7 +20,7 @@ import java.util.logging.Logger;
  */
 public class AccountService {
     
-    public User checkLogin(String username, String password) {
+    public User checkLogin(String username, String password, String path) {
         User user;
         
         UserDB userDB = new UserDB();
@@ -25,6 +28,24 @@ public class AccountService {
             user = userDB.getUser(username);
             
             if (user.getPassword().equals(password)) {
+                Logger.getLogger(AccountService.class.getName())
+                        .log(Level.INFO, 
+                        "A user logged in: {0}",
+                        username);
+                try {
+                    //WebMailService.sendMail(user.getEmail(), "NotesKeepr Logged in", "<h2>Congrats!  You just loggedin successfully.</h2>" , true);
+                    
+                    HashMap<String, String> contents = new HashMap<>();
+                    
+                    contents.put("firstname", user.getFirstname());
+                    contents.put("date", (new java.util.Date()).toString());
+                    
+                    String template = path + "/emailtemplates/login.html";
+                    WebMailService.sendMail(user.getEmail(), "NotesKeepr Login", template, contents);
+                    
+                } catch (Exception ex) {
+                    Logger.getLogger(AccountService.class.getName()).log(Level.SEVERE, null, ex);
+                }
                 return user;
             }
             
