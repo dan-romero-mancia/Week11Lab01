@@ -101,4 +101,16 @@ public class UserDB {
             em.close();
         }
     }
+    
+    public User getUserByEmail(String email) throws NotesDBException {
+        EntityManager em = DBUtil.getEmFactory().createEntityManager();
+        try {
+            User user = em.createNamedQuery("User.findByEmail", User.class).setParameter("email", email).getSingleResult();
+            return user;
+        } catch (Exception ex) {
+            throw new NotesDBException("Error getting user");
+        } finally {
+            em.close();
+        } 
+    }
 }

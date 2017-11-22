@@ -13,6 +13,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.mail.MessagingException;
 import javax.naming.NamingException;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  *
@@ -53,6 +54,29 @@ public class AccountService {
         }
         
         return null;
+    }
+    
+    public boolean forgotPassword(HttpServletRequest request, String email) {
+        UserService userService = new UserService();
+        try {
+            User user = userService.getByEmail(email);
+            if (user != null) {
+                HashMap<String, String> contents = new HashMap<>();
+                contents.put("firstname", user.getFirstname());
+                contents.put("lastname", user.getLastname());
+                contents.put("username", user.getUsername());
+                contents.put("password", user.getPassword());
+            
+                String template = request.getServletContext().getRealPath("/WEB-INF/emailtemplates/forgot.html");
+                WebMailService.sendMail(user.getEmail(), "NotesKeepr Forgot Password", template, contents);
+                return true;
+            }
+
+           return false; 
+        } catch (Exception ex) {
+            Logger.getLogger(AccountService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return false;
     }
     
 }

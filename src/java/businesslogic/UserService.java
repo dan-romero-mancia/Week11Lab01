@@ -42,4 +42,8 @@ public class UserService {
         user.setRole(role);
         return userDB.insert(user);
     }
+    
+    public User getByEmail(String email) throws Exception {
+        return userDB.getUserByEmail(email);
+    }
 }
